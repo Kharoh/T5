@@ -127,8 +127,8 @@ let horoscope = () => {
     setTimeout(async() => {
         await sendHoroscope()
         horoscope()
-    // }, (new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0).getTime() - new Date().getTime()))
-    }, 0)
+    }, (new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0).getTime() - new Date().getTime()))
+    // }, 0)
 }
 
 let sendHoroscope = async() => {
