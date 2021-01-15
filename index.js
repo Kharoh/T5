@@ -53,6 +53,8 @@ client.on('ready', () => {
 
     let now = new Date()
 
+    console.log(birthdaysPerMonth)
+
     birthdaysToLookFor = birthdaysPerMonth[now.getMonth()].concat(birthdaysPerMonth[(now.getMonth() + 1) % 12])
 
     console.log(birthdaysToLookFor)
@@ -91,16 +93,16 @@ let dateChecker = () => {
         }, birthday.date.day === now.getDate() ? ( birthday.date.hour - now.getHours()) * 3600000 + (birthday.date.minute - now.getMinutes()) * 60000 +(birthday.date.seconde - now.getSeconds()) * 1000 : 86400000)
     }
 
-    birthdaysToLookFor.unshift({
-        id: '419840551781793802',
-        date: {
-            month: 0,
-            day: 15,
-            hour: 19,
-            minute : 35,
-            seconde: 25
-        }
-    })
+    // birthdaysToLookFor.unshift({
+    //     id: '419840551781793802',
+    //     date: {
+    //         month: 0,
+    //         day: 15,
+    //         hour: 19,
+    //         minute : 35,
+    //         seconde: 25
+    //     }
+    // })
     
     for(birthday of birthdaysToLookFor) {
         waitForBirthday(birthday)
