@@ -55,8 +55,6 @@ client.on('ready', () => {
 
     let now = new Date()
 
-    // console.log(birthdaysPerMonth)
-
     birthdaysToLookFor = birthdaysPerMonth[now.getMonth()].concat(birthdaysPerMonth[(now.getMonth() + 1) % 12])
 
     console.log(birthdaysToLookFor)
@@ -122,13 +120,11 @@ let horoscope = () => {
         sendHoroscope()
     }
 
-    // console.log(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0).getTime() - new Date().getTime())
     now = new Date()
     setTimeout(async() => {
         await sendHoroscope()
         horoscope()
     }, (new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0).getTime() - new Date().getTime()))
-    // }, 0)
 }
 
 let sendHoroscope = async() => {
@@ -168,7 +164,20 @@ let sendHoroscope = async() => {
             .setTitle(sign)
             .setURL(url)
             .setAuthor('Alias', 'https://cdn.discordapp.com/avatars/651859468920946738/b2a57698754089238268680b58192e06.png?size=128')
-            .addField("Horoscope du jour", content)
+            
+
+        if(content.length < 1000) {
+            embed.addField("Horoscope du jour", content)
+        } else {
+            let firstHalf = content.substring(0, content.length / 2)
+            let secondHalf = content.substring(content.length / 2, content.length)
+
+            firstHalf += secondHalf.slice(0, secondHalf.indexOf('. ') + 2)
+            secondHalf = secondHalf.slice(secondHalf.indexOf('. ') + 2, secondHalf.length)
+
+            embed.addField('Horscope du jour(1/2)', firstHalf)
+            embed.addField('Horscope du jour (2/2)', secondHalf)
+        }
 
         guild.channels.cache.get(config.astroChannelID).send(embed)
     }
