@@ -20,9 +20,9 @@ client.on('ready', () => {
     guild = client.guilds.cache.get(config.guildID)
     console.log(`Logged in as ${client.user.tag}`)
 
-    // birthdays = db.get('birthdays')
 
-    // db.delete('birthdaysPerMonth')
+    // Setting up all the birthdays by month
+
 
     // birthdaysPerMonth = new Array(12).fill(null).map(() => [])
 
@@ -32,32 +32,46 @@ client.on('ready', () => {
 
     // birthdaysPerMonth.forEach(month => month.sort((a, b) => a.date.day - b.date.day))
 
+
+
+    // Creating a chronogical array of birthdays from today
+
+
+    // let now = new Date()
+
+    // birthdaysToLookFor= birthdaysPerMonth.slice(now.getMonth()).concat(birthdaysPerMonth.slice(0, now.getMonth()))
+
+    // birthdaysToLookFor.push(birthdaysToLookFor[0].filter(birthday => birthday.date.day < now.getDate()))
+
+    // birthdaysToLookFor[0] = birthdaysToLookFor[0].filter(birthday => birthday.date.day >= now.getDate())
+
+    // birthdaysFromOtherMonths = birthdaysToLookFor.slice(1)
+
+    // birthdaysToLookFor = birthdaysToLookFor[0]
+
+    // for(month of birthdaysFromOtherMonths) {
+    //     month.forEach(birthday => {
+    //         birthdaysToLookFor.push(birthday)
+    //     })
+    // }
+
+    
+
+    // Initialising the database
+    
     // db.set('birthdaysPerMonth', birthdaysPerMonth)
 
     // db.set('birthdays', birthdays)
 
-    birthdaysPerMonth = db.get('birthdaysPerMonth')
+    // db.set('birthdaysToLookFor', birthdaysToLookFor)
+
 
     birthdays = db.get('birthdays')
 
-    // birthdaysPerMonth[0].shift()
+    birthdaysPerMonth = db.get('birthdaysPerMonth')
 
-    // birthdays.splice(5, 1)
+    birthdaysToLookFor = db.get('birthdaysToLookFor')
 
-
-    // console.log(birthdaysPerMonth[0])
-
-    // console.log(birthdays)
-
-    // db.set('birthdays', birthdays)
-
-    // db.set('birthdaysPerMonth', birthdaysPerMonth)
-
-    let now = new Date()
-
-    birthdaysToLookFor = birthdaysPerMonth[now.getMonth()].concat(birthdaysPerMonth[(now.getMonth() + 1) % 12])
-
-    console.log(birthdaysToLookFor)
 
     commands = require('./commands/commands')
 
@@ -80,37 +94,34 @@ client.on('message', (message) => {
 
       command = args.shift()
 
-      if(commands[command]) commands[command]({ client, guild, config, db, message }, args)
+      if(commands[command]) commands[command]({ Discord, client, guild, config, db, message }, args)
       else message.channel.send('This command doesn\'t exist')
     }
 })
 
-let dateChecker = () => {
+let dateChecker = async () => {
     
-    let waitForBirthday = (birthday) => {
+    let waitForBirthday = async (birthday) => {
         let now = new Date()
         console.log(new Date(now.getFullYear(), birthday.date.month, birthday.date.day, birthday.date.hour, birthday.date.minute, birthday.date.seconde).getTime() - new Date().getTime())
-        setTimeout(() => {
-            console.log('sending message')
-            console.log(birthday)
-            guild.channels.cache.get(config.channelID).send(`Joyeux anniversaire <@${birthday.id}> <:tada:798513412869980190> <:partying_face:798513412869980190>`)
-            birthdaysToLookFor.shift()
-        }, birthday.date.day === now.getDate() ? (new Date(now.getFullYear(), birthday.date.month, birthday.date.day, birthday.date.hour, birthday.date.minute, birthday.date.seconde).getTime() - new Date().getTime()) : 86400000)
-    }
 
-    // birthdaysToLookFor.unshift({
-    //     id: '419840551781793802',
-    //     date: {
-    //         month: 0,
-    //         day: 15,
-    //         hour: 21,
-    //         minute : 08,
-    //         seconde: 25
-    //     }
-    // })
+        let promise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                console.log('sending message')
+                console.log(birthday)
+                guild.channels.cache.get(config.channelID).send(`Joyeux anniversaire <@${birthday.id}> <:tada:798513412869980190> <:partying_face:798513412869980190>`)
+                birthdaysToLookFor.push(birthdaysToLookFor.shift())
+                db.set('birthdaysToLookFor', birthdaysToLookFor)
+                resolve('Resolved')
+            }, birthday.date.day === now.getDate() ? (new Date(now.getFullYear(), birthday.date.month, birthday.date.day, birthday.date.hour, birthday.date.minute, birthday.date.seconde).getTime() - new Date().getTime()) : 86400000)
+        })
+
+        return promise
+    }
     
-    for(birthday of birthdaysToLookFor) {
-        waitForBirthday(birthday)
+    while(true) {
+        let promise = await waitForBirthday(birthdaysToLookFor[0])
+        console.log(promise)
     }
 }
 
@@ -175,7 +186,7 @@ let sendHoroscope = async() => {
             firstHalf += secondHalf.slice(0, secondHalf.indexOf('. ') + 2)
             secondHalf = secondHalf.slice(secondHalf.indexOf('. ') + 2, secondHalf.length)
 
-            embed.addField('Horscope du jour(1/2)', firstHalf)
+            embed.addField('Horscope du jour (1/2)', firstHalf)
             embed.addField('Horscope du jour (2/2)', secondHalf)
         }
 

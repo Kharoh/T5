@@ -1,6 +1,7 @@
 const commands = {
     'getBirthdays': require('./getBirthdays'),
-    'addBirthday': require('./addBirthday')
+    'addBirthday': require('./addBirthday'),
+    'send': require('./send')
 }
 
 module.exports = commands
