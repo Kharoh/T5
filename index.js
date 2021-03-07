@@ -94,7 +94,7 @@ client.on('message', (message) => {
 
       command = args.shift()
 
-      if(commands[command]) commands[command]({ Discord, client, guild, config, db, message }, args)
+      if(commands[command]) commands[command]({ puppeteer, Discord, client, guild, env: process.env, config, db, message }, args)
       else message.channel.send('This command doesn\'t exist')
     }
 })
@@ -174,7 +174,7 @@ let sendHoroscope = async() => {
             .setColor('#E74C3C')
             .setTitle(sign)
             .setURL(url)
-            .setAuthor('Alias', 'https://cdn.discordapp.com/avatars/651859468920946738/b2a57698754089238268680b58192e06.png?size=128')
+            .setAuthor('T5', 'https://cdn.discordapp.com/avatars/651859468920946738/b2a57698754089238268680b58192e06.png?size=128')
             
 
         if(content.length < 1000) {
