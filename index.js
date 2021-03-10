@@ -1,12 +1,11 @@
 const Discord = require('discord.js')
-const client = new Discord.Client({disableEveryone : false})
-
 const Base = require('kf-database')
-const db = new Base({ name: 'birthdays' })
-
 const puppeteer = require('puppeteer')
 
 const config = require('./config')
+
+const client = new Discord.Client({disableEveryone : false})
+const db = new Base({ name: 'birthdays' })
 let birthdays = require('./birthdays')
 
 let guild
@@ -20,87 +19,31 @@ client.on('ready', () => {
     guild = client.guilds.cache.get(config.guildID)
     console.log(`Logged in as ${client.user.tag}`)
 
-
-    // Setting up all the birthdays by month
-
-
-    // birthdaysPerMonth = new Array(12).fill(null).map(() => [])
-
-    // birthdays.forEach(birth => {
-    //     birthdaysPerMonth[birth.date.month - 1].push(birth)
-    // })
-
-    // birthdaysPerMonth.forEach(month => month.sort((a, b) => a.date.day - b.date.day))
-
-
-
-    // Creating a chronogical array of birthdays from today
-
-
-    // let now = new Date()
-
-    // birthdaysToLookFor= birthdaysPerMonth.slice(now.getMonth()).concat(birthdaysPerMonth.slice(0, now.getMonth()))
-
-    // birthdaysToLookFor.push(birthdaysToLookFor[0].filter(birthday => birthday.date.day < now.getDate()))
-
-    // birthdaysToLookFor[0] = birthdaysToLookFor[0].filter(birthday => birthday.date.day >= now.getDate())
-
-    // birthdaysFromOtherMonths = birthdaysToLookFor.slice(1)
-
-    // birthdaysToLookFor = birthdaysToLookFor[0]
-
-    // for(month of birthdaysFromOtherMonths) {
-    //     month.forEach(birthday => {
-    //         birthdaysToLookFor.push(birthday)
-    //     })
-    // }
-
-    
-
-    // Initialising the database
-    
-    // db.set('birthdaysPerMonth', birthdaysPerMonth)
-
-    // db.set('birthdays', birthdays)
-
-    // db.set('birthdaysToLookFor', birthdaysToLookFor)
-
-
     birthdays = db.get('birthdays')
-
     birthdaysPerMonth = db.get('birthdaysPerMonth')
-
     birthdaysToLookFor = db.get('birthdaysToLookFor')
-
 
     commands = require('./commands/commands')
 
-    let main = async () => {
+    (async () => {
         dateChecker()
         horoscope()
-    }
-
-    main()
+    })()
 })
 
 client.on('message', (message) => {
-    
-    
+    if (message.content.startsWith("!")) {
+        const content = message.content.slice(1)
+        const args = content.split(' ')
 
-    if (message.content[0] === "!") {
+        const command = args.shift()
 
-      content = message.content.slice(1)
-      args = content.split(' ')
-
-      command = args.shift()
-
-      if(commands[command]) commands[command]({ puppeteer, Discord, client, guild, env: process.env, config, db, message }, args)
-      else message.channel.send('This command doesn\'t exist')
+        if(commands[command]) commands[command]({ puppeteer, Discord, client, guild, env: process.env, config, db, message }, args)
+        else message.channel.send('This command doesn\'t exist')
     }
 })
 
 let dateChecker = async () => {
-    
     let waitForBirthday = async (birthday) => {
         let now = new Date()
         console.log(new Date(now.getFullYear(), birthday.date.month, birthday.date.day, birthday.date.hour, birthday.date.minute, birthday.date.seconde).getTime() - new Date().getTime())
@@ -139,7 +82,6 @@ let horoscope = () => {
 }
 
 let sendHoroscope = async() => {
-
     if(db.get('horoscope') === new Date().getDate()) return
     let browser = await puppeteer.launch()
     let page = await browser.newPage()
@@ -195,7 +137,5 @@ let sendHoroscope = async() => {
 
     db.set('horoscope', new Date().getDate())
 }
-
-
 
 client.login(process.env.TOKEN)
